@@ -1,0 +1,92 @@
+Algoritmul din cod implementează o metodă de rezolvare a unui sistem liniar de ecuații, și anume metoda eliminării gaussiene cu pivotare parțială. Sistemul liniar reprezintă o relație matematică între variabile, unde fiecare ecuație reprezintă o condiție sau restricție. În contextul acestui cod, sistemul liniar este folosit pentru a rezolva o problemă de transport, unde se caută cantitățile optime de transport între producători și destinații.
+
+Iată o descriere a funcționalității algoritmului și a modului în care este utilizat în cod:
+
+1. **Generarea datelor:**
+   - Se generează aleatoriu o matrice de costuri de transport între producători și destinații (`costuri_transport`), vectorul de oferte (`oferte`) și vectorul de cereri (`cereri`).
+
+2. **Eliminare gaussiana cu pivotare partiala:**
+   - Algoritmul începe prin construirea unei matrici extinse, combinând matricea de costuri cu vectorul de cereri.
+   - Apoi se aplică eliminarea gaussiană cu pivotare parțială pentru a aduce matricea la o formă superior triunghiulară.
+   - Alegerea pivotului se face în așa fel încât să se evite divizarea la zero și să se reducă erorile numerice.
+   - După eliminarea gaussiană, se rezolvă sistemul liniar rezultat prin substituție înapoi.
+
+3. **Atribuirea cantităților optime:**
+   - Soluția obținută reprezintă cantitățile optime de transport de la fiecare producător la fiecare destinație.
+
+4. **Afișarea rezultatelor:**
+   - Rezultatele, inclusiv matricea de costuri, numele produselor, producătorilor și destinațiilor, vectorii de oferte și cereri, precum și cantitățile optime de transport, sunt salvate într-un fișier text numit "rezultate.txt".
+
+În general, algoritmul GPP (Gauss cu pivotare parțială) este o tehnică numerică utilizată pentru rezolvarea sistemelor liniare de ecuații. În contextul specific al acestui cod, rezolvarea sistemului liniar ajută la determinarea cantităților optime de transport într-o problemă de distribuție între producători și destinații, minimizând costurile asociate transportului.
+
+
+
+Pentru a asigura că soluția de transport nu generează cantități negative și este fezabilă, trebuie să te asiguri că resursele disponibile (ofertele) sunt suficiente pentru a satisface cererile. O condiție necesară este ca suma ofertelor să fie mai mare sau egală cu suma cererilor pentru fiecare produs și producător.
+
+
+
+PREZENTARE:
+Aplicația ta este una de transport și implică rezolvarea unui sistem liniar folosind algoritmul Gauss cu pivotare parțială. În această aplicație, sistemul liniar este format din matricea de costuri de transport, vectorul de cereri și vectorul de oferte. Vom privi la rezolvarea sistemului pentru a obține cantitățile optime de transport de la producători la destinații.
+
+Pasul 1: Construirea Matricei Extinse
+# Construim matricea extinsă
+matrice_extinsa = np.column_stack((costuri_transport.astype(np.float64), cereri.astype(np.float64)))
+
+
+Pasul 2: Eliminarea Gaussiana cu Pivotare Parțială
+for i in range(numar_producatori-1):
+    # Alegem pivotul
+    pivot_index = np.argmax(np.abs(matrice_extinsa[i:, i])) + i
+
+    # Schimbăm rândurile pentru a avea pivotul pe diagonala principală
+    matrice_extinsa[[i, pivot_index]] = matrice_extinsa[[pivot_index, i]]
+
+    # Eliminare gaussiana
+    for j in range(i+1, numar_producatori):
+        ratio = matrice_extinsa[j, i] / matrice_extinsa[i, i]
+        matrice_extinsa[j, i:] -= ratio * matrice_extinsa[i, i:]
+
+
+Pasul 3: Substituția Înapoi
+x = np.zeros(numar_producatori)
+for i in range(numar_producatori-1, -1, -1):
+    x[i] = (matrice_extinsa[i, -1] - np.dot(matrice_extinsa[i, i+1:numar_destinatii], x[i+1:])) / matrice_extinsa[i, i]
+
+
+
+În acest punct, vectorul x conține cantitățile optime de transport de la fiecare producător la fiecare destinație.
+
+Este important de menționat că algoritmul Gauss poate funcționa mai bine pe matricea inițială dacă aceasta este bine condiționată și nu are valori de scalare foarte mici sau foarte mari. De asemenea, pivotarea parțială ajută la evitarea divizării la zero în cazul în care un element pivot devine zero.
+
+Cantitățile optime de transport reprezintă soluțiile unui sistem de ecuații liniare care modelează transportul de bunuri între producători și destinații, având în vedere costurile asociate. Aceste cantități indică cantitatea optimă de bunuri care trebuie transportată de la fiecare producător la fiecare destinație pentru a satisface cererile și ofertele, minimizând costurile totale.
+
+În contextul problemei tale, sistemul de ecuații liniare este rezolvat folosind algoritmul Gauss cu pivotare parțială pentru a obține aceste cantități optime de transport. Aceste cantități ar trebui să reflecte cantitatea optimă de fiecare produs care trebuie să meargă de la fiecare producător la fiecare destinație pentru a îndeplini cerințele și ofertele date.
+
+În mod ideal, cantitățile optime de transport ar trebui să fie valori pozitive, indicând că există o modalitate viabilă de a transporta bunurile în întregime, fără să existe excedente sau lipsuri. Cu toate acestea, în implementarea anterioară, în cazul în care valorile obținute sunt negative, am adăugat o linie de cod pentru a le ajusta astfel încât să fie zero sau mai mari, și am creat un fișier separat pentru a evidenția cantitățile indisponibile
+
+
+
+În contextul problemei tale, cantitatea optimă de transport de 204.03869212 pentru Laptopul HP de la producătorul HP la destinația București arată că, pentru a îndeplini cererea și oferta date, ar trebui să transporte aproximativ 204 unități ale acestui produs pe această rută specifică.
+
+Cantitatea nu este întotdeauna un număr întreg în aceste probleme, deoarece algoritmul optimizează costurile totale, iar aceste costuri pot fi influențate de cantități fracționare. În acest caz, cantitatea de 204.03869212 este rezultatul algoritmului de optimizare care minimizează costurile totale de transport în funcție de oferte, cereri și costurile de transport.
+
+Practic, această cantitate indică cât ar trebui să fie transportat pe ruta respectivă pentru a satisface cât mai eficient posibil cererile și ofertele, având în vedere costurile asociate. Cantitatea optimă reprezintă soluția sistemului de ecuații liniare pe care algoritmul Gauss cu pivotare parțială încearcă să-l rezolve.
+
+Cantitatea optimă, în contextul unui problemă de transport sau a unei rețele logistice, reprezintă cantitatea de bunuri sau produse care trebuie transportată de la fiecare sursă (producător) la fiecare destinație, astfel încât să se minimizeze costurile totale de transport. Această cantitate este determinată de sistemul de ecuații rezolvat, care ia în considerare costurile de transport și cererile de consum la fiecare destinație.
+
+Într-un sistem de transport, această cantitate optimă indică o distribuție eficientă a bunurilor pentru a îndeplini cerințele de consum la destinații, având în vedere costurile asociate transportului între surse și destinații diferite. Scopul este să se minimizeze costurile totale, iar cantitățile optime de transport sunt calculate pentru a atinge acest obiectiv.
+
+
+
+
+
+
+
+
+
+
+
+Costurile de transport să fie mari: Dacă costurile de transport (costuri_transport[j, i]) sunt mari, iar oferta sau cererea este mică, algoritmul ar putea să decidă să nu transporte deloc cantitatea respectivă pentru a minimiza costurile.
+
+
+Sistemul liniar să fie sub-determinat: În cazul unui sistem liniar sub-determinat (mai multe variabile decât ecuații), soluția poate să nu fie unică, iar algoritmul poate returna 0.0000 pentru unele variabile
